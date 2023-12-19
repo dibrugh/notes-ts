@@ -1,6 +1,6 @@
 import { FormEvent, useRef, useState } from "react";
 import { Button, Col, Form, Row, Stack } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CreatableReactSelect from "react-select/creatable";
 import { NoteData, Tag } from "./App";
 import { v4 as uuidV4 } from "uuid";
@@ -18,6 +18,8 @@ const NoteForm = ({ onSubmit, onAddTag, availableTags }: NoteFormProps) => {
 
 	const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
+    const navigate = useNavigate();
+
 	const handleSubmit = (e: FormEvent) => {
 		/* turn off reloading */
 		e.preventDefault();
@@ -26,8 +28,10 @@ const NoteForm = ({ onSubmit, onAddTag, availableTags }: NoteFormProps) => {
 			/* ! means that value never could be null, so by ! we force them not to be null  */
 			title: titleRef.current!.value,
 			markdown: markdownRef.current!.value,
-			tags: [],
+			tags: selectedTags,
 		});
+        /* redirect to the index page */
+        navigate("..")
 	};
 
 	return (
@@ -42,7 +46,7 @@ const NoteForm = ({ onSubmit, onAddTag, availableTags }: NoteFormProps) => {
 						</Form.Group>
 					</Col>
 					<Col>
-						<Form.Group controlId="title">
+						<Form.Group controlId="tags">
 							<Form.Label>Tags</Form.Label>
 							{/* Select list where u can write and add new option */}
 							<CreatableReactSelect

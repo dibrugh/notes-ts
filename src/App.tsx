@@ -5,6 +5,7 @@ import NewNote from "./NewNote";
 import { useMemo, useState } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { v4 as uuidV4 } from "uuid";
+import NoteList from "./NoteList";
 
 /* add id to an existing NoteData type */
 export type Note = {
@@ -66,7 +67,7 @@ function App() {
 		/* Bootstrap component */
 		<Container className="my-4">
 			<Routes>
-				<Route path="/" element={<h1>Home</h1>} />
+				<Route path="/" element={<NoteList notes={notesWithTags} availableTags={tags} />} />
 				<Route
 					path="/new"
 					element={
