@@ -3,12 +3,15 @@ import { Button, Col, Form, Row, Stack } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import CreatableReactSelect from "react-select/creatable";
 import { NoteData, Tag } from "./App";
+import { v4 as uuidV4 } from "uuid";
 
 type NoteFormProps = {
 	onSubmit: (data: NoteData) => void;
+	onAddTag: (tag: Tag) => void;
+	availableTags: Tag[];
 };
 
-const NoteForm = ({ onSubmit }: NoteFormProps) => {
+const NoteForm = ({ onSubmit, onAddTag, availableTags }: NoteFormProps) => {
 	/* get info to submit on another page */
 	const titleRef = useRef<HTMLInputElement>(null);
 	const markdownRef = useRef<HTMLTextAreaElement>(null);
@@ -43,8 +46,16 @@ const NoteForm = ({ onSubmit }: NoteFormProps) => {
 							<Form.Label>Tags</Form.Label>
 							{/* Select list where u can write and add new option */}
 							<CreatableReactSelect
-								isMulti
+								onCreateOption={(label) => {
+									const newTag = { id: uuidV4(), label };
+									onAddTag(newTag);
+									setSelectedTags((prev) => [...prev, newTag]);
+								}}
 								value={selectedTags.map((tag) => {
+									return { label: tag.label, value: tag.id };
+								})}
+								/* we take availableTags and convert to the proper format */
+								options={availableTags.map((tag) => {
 									return { label: tag.label, value: tag.id };
 								})}
 								/* converting from value to id */
@@ -55,6 +66,7 @@ const NoteForm = ({ onSubmit }: NoteFormProps) => {
 										})
 									);
 								}}
+								isMulti
 							/>
 						</Form.Group>
 					</Col>

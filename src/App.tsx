@@ -2,47 +2,81 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Container } from "react-bootstrap";
 import { Navigate, Route, Routes } from "react-router-dom";
 import NewNote from "./NewNote";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocalStorage } from "./useLocalStorage";
+import { v4 as uuidV4 } from "uuid";
 
 /* add id to an existing NoteData type */
 export type Note = {
-  id: string;
+	id: string;
 } & NoteData;
 
 export type NoteData = {
-  title: string;
-  markdown: string;
-  tags: Tag[];
-}
+	title: string;
+	markdown: string;
+	tags: Tag[];
+};
 
 export type Tag = {
-  id: string;
-  label: string;
-}
+	id: string;
+	label: string;
+};
 
 // for Local Storage
 export type RawNote = {
-  id: string;
-}
+	id: string;
+	/* implementing RawNoteData */
+} & RawNoteData;
 
 export type RawNoteData = {
-  title: string;
-  markdown: string;
-  /* instead of tags we'll have ids */
-  tagIds: string[];
-}
+	title: string;
+	markdown: string;
+	/* instead of tags we'll have ids */
+	tagIds: string[];
+};
 
 function App() {
-  /* Store notes and tags in LocalStorage */
-  const [notes, setNotes] = useLocalStorage<RawNote[]>("NOTES", []);
-  const [tags, setTags] = useLocalStorage<Tag[]>("TAGS", []);
+	/* Store notes and tags in LocalStorage */
+	const [notes, setNotes] = useLocalStorage<RawNote[]>("NOTES", []);
+	const [tags, setTags] = useLocalStorage<Tag[]>("TAGS", []);
+
+	const notesWithTags = useMemo(() => {
+		return notes.map((note) => {
+			return {
+				...note,
+				tags: tags.filter((tag) => note.tagIds.includes(tag.id)),
+			};
+		});
+	}, [notes, tags]);
+
+	function onCreateNote({ tags, ...data }: NoteData) {
+		setNotes((prevNotes) => {
+			return [
+				...prevNotes,
+				{ ...data, id: uuidV4(), tagIds: tags.map((tag) => tag.id) },
+			];
+		});
+	}
+
+	function onAddTag(tag: Tag) {
+		setTags((prev) => [...prev, tag]);
+	}
+
 	return (
-    /* Bootstrap component */
+		/* Bootstrap component */
 		<Container className="my-4">
 			<Routes>
 				<Route path="/" element={<h1>Home</h1>} />
-				<Route path="/new" element={<NewNote />} />
+				<Route
+					path="/new"
+					element={
+						<NewNote
+							onSubmit={onCreateNote}
+							onAddTag={onAddTag}
+							availableTags={tags}
+						/>
+					}
+				/>
 				<Route path="/:id">
 					<Route index element={<h1>Show</h1>} />
 					<Route path="edit" element={<h1>Edit</h1>} />
