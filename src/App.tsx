@@ -8,6 +8,7 @@ import { v4 as uuidV4 } from "uuid";
 import NoteList from "./NoteList";
 import NoteLayout from "./NoteLayout";
 import Note from "./Note";
+import EditNote from "./EditNote";
 
 /* add id to an existing NoteData type */
 export type Note = {
@@ -65,6 +66,24 @@ function App() {
 		setTags((prev) => [...prev, tag]);
 	}
 
+	function onUpdateNote(id: string, { tags, ...data }: NoteData) {
+		setNotes((prevNotes) => {
+			return prevNotes.map((note) => {
+				if (note.id === id) {
+					return { ...note, ...data, tagIds: tags.map((tag) => tag.id) };
+				} else {
+					return note;
+				}
+			});
+		});
+	}
+
+	function onDeleteNote(id: string) {
+		setNotes((prevNotes) => {
+			return prevNotes.filter((note) => note.id !== id);
+		});
+	}
+
 	return (
 		/* Bootstrap component */
 		<Container className="my-4">
@@ -84,8 +103,17 @@ function App() {
 					}
 				/>
 				<Route path="/:id" element={<NoteLayout notes={notesWithTags} />}>
-					<Route index element={<Note />} />
-					<Route path="edit" element={<h1>Edit</h1>} />
+					<Route index element={<Note onDelete={onDeleteNote} />} />
+					<Route
+						path="edit"
+						element={
+							<EditNote
+								onSubmit={onUpdateNote}
+								onAddTag={onAddTag}
+								availableTags={tags}
+							/>
+						}
+					/>
 				</Route>
 				{/* matches everything, redirects to the set page (i.e home) */}
 				<Route path="*" element={<Navigate to={"/"} />}></Route>

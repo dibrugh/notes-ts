@@ -9,16 +9,23 @@ type NoteFormProps = {
 	onSubmit: (data: NoteData) => void;
 	onAddTag: (tag: Tag) => void;
 	availableTags: Tag[];
-};
+} & Partial<NoteData>;
 
-const NoteForm = ({ onSubmit, onAddTag, availableTags }: NoteFormProps) => {
+const NoteForm = ({
+	onSubmit,
+	onAddTag,
+	availableTags,
+	title = "",
+	markdown = "",
+	tags = [],
+}: NoteFormProps) => {
 	/* get info to submit on another page */
 	const titleRef = useRef<HTMLInputElement>(null);
 	const markdownRef = useRef<HTMLTextAreaElement>(null);
 
 	const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
-    const navigate = useNavigate();
+	const navigate = useNavigate();
 
 	const handleSubmit = (e: FormEvent) => {
 		/* turn off reloading */
@@ -30,8 +37,8 @@ const NoteForm = ({ onSubmit, onAddTag, availableTags }: NoteFormProps) => {
 			markdown: markdownRef.current!.value,
 			tags: selectedTags,
 		});
-        /* redirect to the index page */
-        navigate("..")
+		/* redirect to the index page */
+		navigate("..");
 	};
 
 	return (
@@ -42,7 +49,7 @@ const NoteForm = ({ onSubmit, onAddTag, availableTags }: NoteFormProps) => {
 						<Form.Group controlId="title">
 							<Form.Label>Title</Form.Label>
 							{/* Required field */}
-							<Form.Control ref={titleRef} required />
+							<Form.Control ref={titleRef} required defaultValue={title} />
 						</Form.Group>
 					</Col>
 					<Col>
@@ -78,7 +85,13 @@ const NoteForm = ({ onSubmit, onAddTag, availableTags }: NoteFormProps) => {
 				<Form.Group controlId="markdown">
 					<Form.Label>Body</Form.Label>
 					{/* Required textarea field */}
-					<Form.Control ref={markdownRef} required as="textarea" rows={15} />
+					<Form.Control
+						ref={markdownRef}
+						defaultValue={markdown}
+						required
+						as="textarea"
+						rows={15}
+					/>
 				</Form.Group>
 				{/* stack of buttons */}
 				<Stack direction="horizontal" gap={2} className="justify-content-end">
