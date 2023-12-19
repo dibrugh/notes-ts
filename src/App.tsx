@@ -6,6 +6,8 @@ import { useMemo, useState } from "react";
 import { useLocalStorage } from "./useLocalStorage";
 import { v4 as uuidV4 } from "uuid";
 import NoteList from "./NoteList";
+import NoteLayout from "./NoteLayout";
+import Note from "./Note";
 
 /* add id to an existing NoteData type */
 export type Note = {
@@ -67,7 +69,10 @@ function App() {
 		/* Bootstrap component */
 		<Container className="my-4">
 			<Routes>
-				<Route path="/" element={<NoteList notes={notesWithTags} availableTags={tags} />} />
+				<Route
+					path="/"
+					element={<NoteList notes={notesWithTags} availableTags={tags} />}
+				/>
 				<Route
 					path="/new"
 					element={
@@ -78,8 +83,8 @@ function App() {
 						/>
 					}
 				/>
-				<Route path="/:id">
-					<Route index element={<h1>Show</h1>} />
+				<Route path="/:id" element={<NoteLayout notes={notesWithTags} />}>
+					<Route index element={<Note />} />
 					<Route path="edit" element={<h1>Edit</h1>} />
 				</Route>
 				{/* matches everything, redirects to the set page (i.e home) */}
